@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Enums.h"
+#include <bobcat_ui/bobcat_ui.h>
 
 using namespace bobcat;
 using namespace std;
@@ -9,11 +10,13 @@ void Application::onCanvasMouseDown(bobcat::Widget* sender, float mx, float my) 
     Color color = colorSelector->getColor();
 
     if (tool == PENCIL) {
-        canvas->addPoint(mx, my, color.getR(), color.getG(), color.getB(), 7);
+        canvas->startScribble();
+        canvas->updateScribble(mx, my, color.getR(), color.getG(), color.getB(), 7);
         canvas->redraw();
     }
     else if (tool == ERASER) {
-        canvas->addPoint(mx, my, 1.0, 1.0, 1.0, 14);
+        canvas->startScribble();
+        canvas->updateScribble(mx, my, 1.0, 1.0, 1.0, 14);
         canvas->redraw();
     }
     else if (tool == RECTANGLE) {
@@ -24,6 +27,14 @@ void Application::onCanvasMouseDown(bobcat::Widget* sender, float mx, float my) 
         canvas->addCircle(mx, my, color.getR(), color.getG(), color.getB());
         canvas->redraw();
     }
+    else if (tool == TRIANGLE) { 
+        canvas->addTriangle(mx, my, color.getR(), color.getG(), color.getB());
+        canvas->redraw();
+    }
+    else if (tool == POLYGON) { 
+        canvas->addPolygon(mx, my, color.getR(), color.getG(), color.getB());
+        canvas->redraw();
+    }
     else if (tool == MOUSE) {
         selectedShape = canvas->getSelectedShape(mx, my);
         lastMouseX = mx;
@@ -32,17 +43,21 @@ void Application::onCanvasMouseDown(bobcat::Widget* sender, float mx, float my) 
 
 }
 
+void Application::onCanvasMouseUp(bobcat::Widget* sender, float mx, float my) {
+    canvas->endScribble();
+}
+
 void Application::onCanvasDrag(bobcat::Widget* sender, float mx, float my) {
     TOOL tool = toolbar->getTool();
     Color color = colorSelector->getColor();
     
 
     if (tool == PENCIL) {
-        canvas->addPoint(mx, my, color.getR(), color.getG(), color.getB(), 7);
+        canvas->updateScribble(mx, my, color.getR(), color.getG(), color.getB(), 7);
         canvas->redraw();
     }
     else if (tool == ERASER) {
-        canvas->addPoint(mx, my, 1.0, 1.0, 1.0, 14);
+        canvas->updateScribble(mx, my, 1.0, 1.0, 1.0, 14);
         canvas->redraw();
     }
     else if (tool == MOUSE && selectedShape){
@@ -111,6 +126,7 @@ Application::Application() {
     window->add(colorSelector);
 
     ON_MOUSE_DOWN(canvas, Application::onCanvasMouseDown);
+    ON_MOUSE_UP(canvas, Application::onCanvasMouseUp);
     ON_DRAG(canvas, Application::onCanvasDrag);
     ON_CHANGE(toolbar, Application::onToolbarChange);
     ON_CHANGE(colorSelector, Application::onColorSelectorChange);
