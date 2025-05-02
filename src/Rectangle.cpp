@@ -56,3 +56,8 @@ void Rectangle::changeSize(int sizeChange){
         height = 0.05f;
     }
 }
+
+void Rectangle::dragShape(float dx, float dy){
+    x += dx;
+    y += dy;
+}

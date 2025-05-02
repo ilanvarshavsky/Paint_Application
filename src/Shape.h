@@ -17,6 +17,8 @@ public:
 
     virtual void changeSize(int sizeChange) = 0;
 
+    virtual void dragShape(float dx, float dy) = 0;
+
     // Since Shape contains at least one pure virtual function
     // Shape is an Abstract Data Type
 

@@ -18,6 +18,10 @@ class Application : public bobcat::Application_ {
     void onToolbarChange(bobcat::Widget* sender);
     void onColorSelectorChange(bobcat::Widget* sender);
 
+private:
+    float lastMouseX;
+    float lastMouseY;
+    
 public:
     Application();
 

@@ -19,6 +19,7 @@ public:
     bool contains(float mx, float my);
     void setColor(float r, float g, float b);
     void changeSize(int sizeChange);
+    void dragShape(float dx, float dy);
 };
 
 #endif

@@ -26,6 +26,8 @@ void Application::onCanvasMouseDown(bobcat::Widget* sender, float mx, float my) 
     }
     else if (tool == MOUSE) {
         selectedShape = canvas->getSelectedShape(mx, my);
+        lastMouseX = mx;
+        lastMouseY = my;
     }
 
 }
@@ -33,6 +35,7 @@ void Application::onCanvasMouseDown(bobcat::Widget* sender, float mx, float my) 
 void Application::onCanvasDrag(bobcat::Widget* sender, float mx, float my) {
     TOOL tool = toolbar->getTool();
     Color color = colorSelector->getColor();
+    
 
     if (tool == PENCIL) {
         canvas->addPoint(mx, my, color.getR(), color.getG(), color.getB(), 7);
@@ -40,6 +43,18 @@ void Application::onCanvasDrag(bobcat::Widget* sender, float mx, float my) {
     }
     else if (tool == ERASER) {
         canvas->addPoint(mx, my, 1.0, 1.0, 1.0, 14);
+        canvas->redraw();
+    }
+    else if (tool == MOUSE && selectedShape){
+
+        float dx = mx - lastMouseX;
+        float dy = my - lastMouseY;
+
+        selectedShape->dragShape(dx, dy);
+
+        lastMouseX = mx;
+        lastMouseY = my;
+
         canvas->redraw();
     }
 }
@@ -83,6 +98,8 @@ Application::Application() {
     window = new Window(25, 75, 410, 650, "Paint App");
 
     selectedShape = nullptr;
+    lastMouseX = 0.0f;
+    lastMouseY = 0.0f;
 
     toolbar = new Toolbar(0, 0, 60, 650);
     canvas = new Canvas(60, 0, 350, 600);

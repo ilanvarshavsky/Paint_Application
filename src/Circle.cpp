@@ -50,3 +50,8 @@ void Circle::changeSize(int sizeChange){
         radius = 0.01f;
     }
 }
+
+void Circle::dragShape(float dx, float dy){
+    x += dx;
+    y += dy;
+}
