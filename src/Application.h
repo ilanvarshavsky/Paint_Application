@@ -24,5 +24,4 @@ public:
     friend struct::AppTest;
 };
 
-
 #endif
