@@ -97,6 +97,10 @@ void Application::onToolbarChange(bobcat::Widget* sender) {
         canvas->decreaseSize(selectedShape);
         canvas->redraw();
     }
+    else if (action == UNDO){
+        canvas->undo();
+        canvas->redraw();
+    }
 }
 
 void Application::onColorSelectorChange(bobcat::Widget* sender) {

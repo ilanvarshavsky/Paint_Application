@@ -30,12 +30,15 @@ void Canvas::addPolygon(float x, float y, float r, float g, float b){
     shapes.push_back(new Polygon(x, y, r, g, b));
 }
 
-void Canvas::clear() {
-    /*for (unsigned int i = 0 ; i < points.size(); i++) {
-        delete points[i];
+void Canvas::undo() {
+    if (!shapes.empty()){
+        Shape* lastShape = shapes.back();
+        shapes.pop_back();
+        delete lastShape;
     }
-    points.clear();*/
+}
 
+void Canvas::clear() {
     for (unsigned int i = 0 ; i < shapes.size(); i++) {
         delete shapes[i];
     }
@@ -43,9 +46,6 @@ void Canvas::clear() {
 }
 
 void Canvas::render() {
-    /*for (unsigned int i = 0 ; i < points.size(); i++) {
-        points[i]->draw();
-    }*/
 
     for (unsigned int i = 0 ; i < shapes.size(); i++) {
         shapes[i]->draw();

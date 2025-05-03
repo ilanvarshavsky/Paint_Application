@@ -14,6 +14,7 @@ void Toolbar::deselectAllTools() {
     minusButton->color(FL_BACKGROUND_COLOR);
     sendFrontButton->color(FL_BACKGROUND_COLOR);
     sendBackButton->color(FL_BACKGROUND_COLOR);
+    undoButton->color(FL_BACKGROUND_COLOR);
 }
 
 void Toolbar::visualizeSelectedTool() {
@@ -81,6 +82,9 @@ void Toolbar::onClick(bobcat::Widget* sender) {
     else if (sender == minusButton){
         action = MINUS;
     }
+    else if (sender == undoButton){
+        action = UNDO;
+    }
 
     if (onChangeCb) {
         onChangeCb(this);
@@ -111,6 +115,7 @@ Toolbar::Toolbar(int x, int y, int w, int h) : Group(x, y, w, h) {
     minusButton = new Image(x, y + 450, 50, 50, "./assets/minus.png");
     sendFrontButton = new Image(x, y + 500, 50, 50, "./assets/bring-to-front.png");
     sendBackButton = new Image(x, y + 550, 50, 50, "./assets/send-to-back.png");
+    undoButton = new Image(x, y + 600, 50, 50,"./assets/undo.png");
     
 
     tool = PENCIL;
@@ -128,6 +133,7 @@ Toolbar::Toolbar(int x, int y, int w, int h) : Group(x, y, w, h) {
     minusButton->box(FL_BORDER_BOX);
     sendFrontButton->box(FL_BORDER_BOX);
     sendBackButton->box(FL_BORDER_BOX);
+    undoButton->box(FL_BORDER_BOX);
 
     visualizeSelectedTool();
 
@@ -143,5 +149,7 @@ Toolbar::Toolbar(int x, int y, int w, int h) : Group(x, y, w, h) {
     ON_CLICK(sendFrontButton, Toolbar::onClick);
     ON_CLICK(plusButton, Toolbar::onClick);
     ON_CLICK(minusButton, Toolbar::onClick);
+    ON_CLICK(undoButton, Toolbar::onClick);
+
 
 }
