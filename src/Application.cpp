@@ -1,17 +1,23 @@
 #include "Application.h"
 #include "Enums.h"
+#include "RGBselector.h"
 #include <bobcat_ui/bobcat_ui.h>
+#include <algorithm>
+#include <bobcat_ui/return_button.h>
 
 using namespace bobcat;
 using namespace std;
 
 void Application::onCanvasMouseDown(bobcat::Widget* sender, float mx, float my) {
     TOOL tool = toolbar->getTool();
-    Color color = colorSelector->getColor();
+
+    int r = rgbSelector->getR();
+    int g = rgbSelector->getG();
+    int b = rgbSelector->getB();
 
     if (tool == PENCIL) {
         canvas->startScribble();
-        canvas->updateScribble(mx, my, color.getR(), color.getG(), color.getB(), 7);
+        canvas->updateScribble(mx, my, r / 255.0f, g / 255.0f, b / 255.0f, 7);
         canvas->redraw();
     }
     else if (tool == ERASER) {
@@ -20,19 +26,19 @@ void Application::onCanvasMouseDown(bobcat::Widget* sender, float mx, float my) 
         canvas->redraw();
     }
     else if (tool == RECTANGLE) {
-        canvas->addRectangle(mx, my, color.getR(), color.getG(), color.getB());
+        canvas->addRectangle(mx, my, r / 255.0f, g / 255.0f, b / 255.0f);
         canvas->redraw();
     }
     else if (tool == CIRCLE) { 
-        canvas->addCircle(mx, my, color.getR(), color.getG(), color.getB());
+        canvas->addCircle(mx, my, r / 255.0f, g / 255.0f, b / 255.0f);
         canvas->redraw();
     }
     else if (tool == TRIANGLE) { 
-        canvas->addTriangle(mx, my, color.getR(), color.getG(), color.getB());
+        canvas->addTriangle(mx, my, r / 255.0f, g / 255.0f, b / 255.0f);
         canvas->redraw();
     }
     else if (tool == POLYGON) { 
-        canvas->addPolygon(mx, my, color.getR(), color.getG(), color.getB());
+        canvas->addPolygon(mx, my, r / 255.0f, g / 255.0f, b / 255.0f);
         canvas->redraw();
     }
     else if (tool == MOUSE) {
@@ -49,11 +55,14 @@ void Application::onCanvasMouseUp(bobcat::Widget* sender, float mx, float my) {
 
 void Application::onCanvasDrag(bobcat::Widget* sender, float mx, float my) {
     TOOL tool = toolbar->getTool();
-    Color color = colorSelector->getColor();
+    
+    int r = rgbSelector->getR();
+    int g = rgbSelector->getG();
+    int b = rgbSelector->getB();
     
 
     if (tool == PENCIL) {
-        canvas->updateScribble(mx, my, color.getR(), color.getG(), color.getB(), 7);
+        canvas->updateScribble(mx, my, r / 255.0f, g / 255.0f, b / 255.0f, 7);
         canvas->redraw();
     }
     else if (tool == ERASER) {
@@ -103,37 +112,71 @@ void Application::onToolbarChange(bobcat::Widget* sender) {
     }
 }
 
-void Application::onColorSelectorChange(bobcat::Widget* sender) {
-    Color color = colorSelector->getColor();
+void Application::updateApplyButtonState() {
+        int r = rgbSelector->getR();
+        int g = rgbSelector->getG();
+        int b = rgbSelector->getB();
 
-    if (selectedShape) {
-        cout << "Update selected shape color" << endl;
-        selectedShape->setColor(color.getR(), color.getG(), color.getB());
-        canvas->redraw();
-    }
+        bool validColor(r >= 0 && g >= 0 && b >=0 && r <= 255 && g <= 255 && b <= 255);
+
+        if (validColor){
+            rgbSelector->getApplyButton()->activate();
+        }
+        else {
+            rgbSelector->getApplyButton()->deactivate();
+        }
+}
+
+void Application::onRGBInputChange(bobcat::Widget* sender){
+    updateApplyButtonState();
+}
+
+void Application::onApplyColor(bobcat::Widget* sender) {
+        int r = static_cast<int>(rgbSelector->getR());
+        int g = static_cast<int>(rgbSelector->getG());
+        int b = static_cast<int>(rgbSelector->getB());
+        
+
+        r = std::max(0,std::min(r,255));
+        g = std::max(0,std::min(g,255));
+        b = std::max(0,std::min(b,255));
+
+        if (selectedShape){
+            selectedShape->setColor(r / 255.0f, g / 255.0f, b / 255.0f);
+            canvas->redraw();
+        }
+        rgbSelector->getRInput()->value(0);
+        rgbSelector->getGInput()->value(0);
+        rgbSelector->getBInput()->value(0);
+        rgbSelector->getRInput()->take_focus();
 }
 
 Application::Application() {
-    window = new Window(25, 75, 410, 650, "Paint App");
+    window = new Window(25, 75, 410, 655, "Paint App");
 
     selectedShape = nullptr;
     lastMouseX = 0.0f;
     lastMouseY = 0.0f;
 
-    toolbar = new Toolbar(0, 0, 60, 650);
-    canvas = new Canvas(60, 0, 350, 600);
-    colorSelector = new ColorSelector(60, 600, 350, 50);
-    colorSelector->box(FL_BORDER_BOX);
+    toolbar = new Toolbar(0, 0, 60, 655);
+    canvas = new Canvas(60, 0, 350, 605);
+    rgbSelector = new RGBselector(60,600,350,50);
+
 
     window->add(toolbar);
     window->add(canvas);
-    window->add(colorSelector);
+    window->add(rgbSelector);
+   
 
     ON_MOUSE_DOWN(canvas, Application::onCanvasMouseDown);
     ON_MOUSE_UP(canvas, Application::onCanvasMouseUp);
     ON_DRAG(canvas, Application::onCanvasDrag);
     ON_CHANGE(toolbar, Application::onToolbarChange);
-    ON_CHANGE(colorSelector, Application::onColorSelectorChange);
+    ON_CLICK(rgbSelector->getApplyButton(), Application::onApplyColor);
+    ON_CHANGE(rgbSelector->getRInput(), Application::onRGBInputChange);
+    ON_CHANGE(rgbSelector->getGInput(), Application::onRGBInputChange);
+    ON_CHANGE(rgbSelector->getBInput(), Application::onRGBInputChange);
+    
 
     window->show();
 }
